@@ -32,8 +32,10 @@ pipeline {
         }
         stage('Deploy to Tomcat') {
             steps {
+       			 sh 'cp target/ecommerce-website-1.0-SNAPSHOT.war /Users/abdellatif/tomcat_webapps/'
+   
                 // Copier le .war dans le dossier monté pour Docker
-                sh "cp target/${WAR_NAME} ${LOCAL_WEBAPPS}/"
+                // sh "cp target/${WAR_NAME} ${LOCAL_WEBAPPS}/"
 
                 // Déployer via Tomcat Manager
                 sh "curl --upload-file ${LOCAL_WEBAPPS}/${WAR_NAME} \"${TOMCAT_URL}/deploy?path=/ecommerce-website&update=true\""
