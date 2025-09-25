@@ -1,36 +1,48 @@
 pipeline {
     agent any
+
     environment {
-        DB_URL = "jdbc:mysql://localhost:3306/ecommerce"
-        DB_USER = "root"
-        DB_PASS = "password"
-        PATH = "/var/jenkins_home/maven/bin:$PATH"
+        TOMCAT_URL = "http://admin:admin123@localhost:8091/manager/text"
+        WAR_NAME = "ecommerce-website.war"
     }
+
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/abdellatif-rhaymi/EcommerceWebsite.git'
+                git 'https://github.com/abdellatif-rhaymi/EcommerceWebsite.git'
             }
         }
+
         stage('Build') {
             steps {
                 sh 'mvn clean package -DskipTests'
             }
         }
+
         stage('Test') {
             steps {
                 sh 'mvn test'
-            }
-            post {
-                always {
-                    junit '**/target/surefire-reports/*.xml'
-                }
+                junit '**/target/surefire-reports/*.xml'
             }
         }
+
         stage('Deploy to Tomcat') {
             steps {
-                sh 'cp target/*.war /opt/tomcat/webapps/'
+                // Copier le .war dans le dossier monté sur Mac
+                sh "cp target/${WAR_NAME} ~/tomcat_webapps/"
+
+                // Déployer via le Tomcat Manager
+                sh "curl --upload-file ~/tomcat_webapps/${WAR_NAME} \"${TOMCAT_URL}/deploy?path=/ecommerce-website&update=true\""
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline terminé avec succès !'
+        }
+        failure {
+            echo 'Pipeline échoué ! Vérifie les logs.'
         }
     }
 }
