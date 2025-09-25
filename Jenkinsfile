@@ -5,7 +5,7 @@ pipeline {
         DB_USER = "root"
         DB_PASS = "password"
         PATH = "/var/jenkins_home/maven/bin:$PATH"
-        TOMCAT_WEBAPPS = "/var/jenkins_home/tomcat_webapps" // volume partagé avec Tomcat
+        TOMCAT_WEBAPPS = "/Users/abdellatif/tomcat_webapps"
     }
     stages {
         stage('Checkout') {
@@ -31,20 +31,24 @@ pipeline {
         stage('Deploy to Tomcat') {
             steps {
                 script {
-                    // Vérifie que le dossier existe
-                    sh "mkdir -p ${TOMCAT_WEBAPPS}"
-                    // Copie le WAR généré dans le volume partagé
-                    sh "cp target/*.war ${TOMCAT_WEBAPPS}/"
+                    // Supprimer l'ancien dossier si existe
+                    sh "rm -rf ${TOMCAT_WEBAPPS}/ecommerce-website"
+
+                    // Copier le WAR dans le dossier webapps
+                    sh "cp target/*.war ${TOMCAT_WEBAPPS}/ecommerce-website.war"
+
+                    // Redémarrer le conteneur Tomcat
+                    sh "docker restart mytomcat"
                 }
             }
         }
     }
     post {
-        success {
-            echo "Pipeline terminé avec succès !"
-        }
         failure {
             echo "Pipeline échoué ! Vérifie les logs."
+        }
+        success {
+            echo "Pipeline terminé avec succès ! L'application devrait être disponible sur http://localhost:8091/ecommerce-website"
         }
     }
 }
