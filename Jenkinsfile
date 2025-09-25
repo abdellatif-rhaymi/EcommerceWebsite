@@ -37,7 +37,8 @@ pipeline {
                     sh "cp target/*.war ${TOMCAT_WEBAPPS}/"
                     sh '''
 			        curl --upload-file target/ecommerce-website-1.0-SNAPSHOT.war \
-    				 "http://admin:admin123@localhost:8091/manager/text/deploy?path=/ecommerce-website&update=true"
+     				"http://admin:admin123@172.17.0.3:8080/manager/text/deploy?path=/ecommerce-website&update=true"
+
 
 			        '''
                 }
