@@ -1,13 +1,10 @@
 pipeline {
     agent any
-    tools {
-        jdk 'Java17'
-        maven 'Maven3'
-    }
     environment {
         DB_URL = "jdbc:mysql://localhost:3306/ecommerce"
         DB_USER = "root"
         DB_PASS = "password"
+        PATH = "/var/jenkins_home/maven/bin:$PATH"
     }
     stages {
         stage('Checkout') {
