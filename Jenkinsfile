@@ -5,9 +5,7 @@ pipeline {
         DB_USER = "root"
         DB_PASS = "password"
         PATH = "/var/jenkins_home/maven/bin:$PATH"
-        TOMCAT_URL = "http://admin:admin123@localhost:8091/manager/text"
-        WAR_NAME = "ecommerce-website-1.0-SNAPSHOT.war"
-        LOCAL_WEBAPPS = "/Users/abdellatif/tomcat_webapps" // dossier monté sur ton Mac
+        TOMCAT_WEBAPPS = "/var/jenkins_home/tomcat_webapps" // volume partagé avec Tomcat
     }
     stages {
         stage('Checkout') {
@@ -32,22 +30,21 @@ pipeline {
         }
         stage('Deploy to Tomcat') {
             steps {
-       			 sh 'cp target/ecommerce-website-1.0-SNAPSHOT.war /Users/abdellatif/tomcat_webapps/'
-   
-                // Copier le .war dans le dossier monté pour Docker
-                // sh "cp target/${WAR_NAME} ${LOCAL_WEBAPPS}/"
-
-                // Déployer via Tomcat Manager
-                sh "curl --upload-file ${LOCAL_WEBAPPS}/${WAR_NAME} \"${TOMCAT_URL}/deploy?path=/ecommerce-website&update=true\""
+                script {
+                    // Vérifie que le dossier existe
+                    sh "mkdir -p ${TOMCAT_WEBAPPS}"
+                    // Copie le WAR généré dans le volume partagé
+                    sh "cp target/*.war ${TOMCAT_WEBAPPS}/"
+                }
             }
         }
     }
     post {
         success {
-            echo 'Pipeline terminé avec succès et déploiement fait !'
+            echo "Pipeline terminé avec succès !"
         }
         failure {
-            echo 'Pipeline échoué ! Vérifie les logs.'
+            echo "Pipeline échoué ! Vérifie les logs."
         }
     }
 }
