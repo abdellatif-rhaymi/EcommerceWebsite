@@ -8,13 +8,14 @@ public class TestConnection {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/ecommerce", "root", "root"
+                "jdbc:mysql://mysql-db:3306/ecommerce", "root", "root"
             );
             if (conn != null && !conn.isClosed()) {
-                System.out.println("Connexion réussie !");
+                System.out.println("Connexion à la base réussie !");
             }
             conn.close();
         } catch (Exception e) {
+            System.err.println("Erreur de connexion :");
             e.printStackTrace();
         }
     }
