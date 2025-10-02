@@ -46,7 +46,7 @@ pipeline {
     post {
         success {
             echo "✅ Déploiement terminé avec succès !"
-            echo "🌍 Accéder à l’application : http://localhost:8080/ecommerce/"
+            echo "🌍 Accéder à l’application : http://localhost:8085/ecommerce/"
         }
         failure {
             echo "❌ Pipeline échoué ! Vérifie les logs."
