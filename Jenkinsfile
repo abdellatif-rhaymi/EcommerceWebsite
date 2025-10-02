@@ -23,6 +23,7 @@ pipeline {
                 sh 'mvn clean package -DskipTests'
             }
         }
+        
 
           stage('Test') {
             steps {
@@ -38,6 +39,14 @@ pipeline {
                     sh "rm -f ${TOMCAT_WEBAPPS}/ecommerce.war"
                     // Copie et renomme le WAR
                     sh "cp target/*.war ${TOMCAT_WEBAPPS}/ecommerce.war"
+                }
+            }
+        }
+        stage('Test DB Connection') {
+            steps {
+                script {
+                    sh 'javac -cp ./tomcat_webapps/ecommerce/WEB-INF/lib/mysql-connector-j-9.1.0.jar ./src/main/java/SingletonConnection/TestConnection.java'
+                    sh 'java -cp ./tomcat_webapps/ecommerce/WEB-INF/lib/mysql-connector-j-9.1.0.jar:./src/main/java SingletonConnection.TestConnection'
                 }
             }
         }
