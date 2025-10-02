@@ -1,8 +1,14 @@
 pipeline {
     agent any
 
-    tools {
-        maven 'Maven'  // doit correspondre à l’installation Maven dans Jenkins
+    environment {
+        // Variables de connexion MySQL (si tu veux les utiliser dans ton app)
+        DB_URL = "jdbc:mysql://mysql:3306/ecommerce"
+        DB_USER = "user"
+        DB_PASS = "password"
+
+        // Dossier partagé avec Tomcat (défini dans docker-compose.yml)
+        TOMCAT_WEBAPPS = "/var/jenkins_home/tomcat_webapps"
     }
 
     stages {
@@ -22,19 +28,31 @@ pipeline {
             steps {
                 sh 'mvn test'
             }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
         }
 
         stage('Deploy to Tomcat') {
-            step([$class: 'DeployPublisher',
-                   war: '**/target/*.war',
-                   contextPath: 'app',
-                   onFailure: false,
-                   adapters: [
-                       [$class: 'Tomcat9xAdapter',
-                        credentialsId: 'tomcat-credentials',
-                        url: 'http://tomcat:8085']
-                   ]
-            ])
+            steps {
+                script {
+                    // On vérifie que le volume existe
+                    sh "mkdir -p ${TOMCAT_WEBAPPS}"
+                    // Copie du fichier WAR généré
+                    sh "cp target/*.war ${TOMCAT_WEBAPPS}/"
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Pipeline terminé avec succès, WAR déployé dans Tomcat !"
+        }
+        failure {
+            echo "❌ Pipeline échoué ! Vérifie les logs."
         }
     }
 }
