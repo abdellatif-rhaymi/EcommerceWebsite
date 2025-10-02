@@ -33,10 +33,11 @@ pipeline {
         stage('Deploy to Tomcat') {
             steps {
                 script {
-                    // On vérifie que le volume existe
                     sh "mkdir -p ${TOMCAT_WEBAPPS}"
-                    // Copie du fichier WAR généré
-                    sh "cp target/*.war ${TOMCAT_WEBAPPS}/"
+                    // Supprime l’ancienne version si elle existe
+                    sh "rm -f ${TOMCAT_WEBAPPS}/ecommerce.war"
+                    // Copie et renomme le WAR
+                    sh "cp target/*.war ${TOMCAT_WEBAPPS}/ecommerce.war"
                 }
             }
         }
@@ -44,7 +45,8 @@ pipeline {
 
     post {
         success {
-            echo "✅ Pipeline terminé avec succès, WAR déployé dans Tomcat !"
+            echo "✅ Déploiement terminé avec succès !"
+            echo "🌍 Accéder à l’application : http://localhost:8080/ecommerce/"
         }
         failure {
             echo "❌ Pipeline échoué ! Vérifie les logs."
