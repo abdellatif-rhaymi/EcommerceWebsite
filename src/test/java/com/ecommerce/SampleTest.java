@@ -3,9 +3,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.sql.*;
 import org.junit.jupiter.api.*;
 
-import dao.UtilisateurDao;
-import model.Utilisateur;
-
+import UtilisateurDao.IUtilisateurDao;
+import UtilisateurDao.UtilisateurDaoImpl;
+import entities.Utilisateur;
 public class SampleTest {
 
     private static Connection connection;
