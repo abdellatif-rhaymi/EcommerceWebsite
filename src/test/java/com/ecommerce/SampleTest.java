@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.sql.*;
 import org.junit.jupiter.api.*;
 
-import SingletonConnection.SingletonConnection;
 import UtilisateurDao.UtilisateurDaoImpl;
 import entities.Utilisateur;
 
@@ -16,17 +15,8 @@ public class SampleTest {
 
     @BeforeAll
     public static void init() throws Exception {
-        // Charger le driver JDBC
-        Class.forName("com.mysql.cj.jdbc.Driver");
-
-        String url = "jdbc:mysql://localhost:3306/ecommerce";
-        String user = "root";
-        String password = "root";
-
-        connection = DriverManager.getConnection(url, user, password);
-        utilisateurDao = new UtilisateurDaoImpl();
-
-        System.out.println("✅ Connexion à la base réussie !");
+    	utilisateurDao = new UtilisateurDaoImpl();
+        System.out.println("✅ DAO initialisé avec SingletonConnection !");
     }
 
     @AfterAll
