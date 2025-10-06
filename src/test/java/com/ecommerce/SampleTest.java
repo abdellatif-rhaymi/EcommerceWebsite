@@ -4,12 +4,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.sql.*;
 import org.junit.jupiter.api.*;
 
+import SingletonConnection.SingletonConnection;
 import UtilisateurDao.UtilisateurDaoImpl;
 import entities.Utilisateur;
 
 public class SampleTest {
-
+	
     private static Connection connection;
+
     private static UtilisateurDaoImpl utilisateurDao;
 
     @BeforeAll
@@ -22,7 +24,7 @@ public class SampleTest {
         String password = "root";
 
         connection = DriverManager.getConnection(url, user, password);
-        utilisateurDao = new UtilisateurDaoImpl(connection);
+        utilisateurDao = new UtilisateurDaoImpl();
 
         System.out.println("✅ Connexion à la base réussie !");
     }
