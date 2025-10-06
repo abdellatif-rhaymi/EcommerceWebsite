@@ -26,18 +26,15 @@ pipeline {
         
 
 
-        stage('Test JUnit DAO') {
-            steps {
-                echo '🧪 Exécution des tests JUnit sur UtilisateurDao...'
-                sh '''
-                    mkdir -p test-classes
-                    javac -cp "./tomcat_webapps/ecommerce/WEB-INF/lib/*:./classes" -d test-classes $(find ./src/test/java -name "*.java")
-                    java -jar ./tomcat_webapps/ecommerce/WEB-INF/lib/junit-platform-console-standalone-1.10.2.jar \
-                        --class-path ./classes:./test-classes:./tomcat_webapps/ecommerce/WEB-INF/lib/mysql-connector-j-9.1.0.jar \
-                        --scan-classpath
-                '''
-            }
+            stage('Test JUnit DAO') {
+        steps {
+            echo "🧪 Exécution des tests JUnit sur UtilisateurDao..."
+            sh '''
+                mvn test -Dtest=SampleTest
+            '''
         }
+    }
+
 
         stage('Deploy to Tomcat') {
             steps {
