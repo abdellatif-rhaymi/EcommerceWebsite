@@ -44,7 +44,6 @@ public class SampleTest {
         u.setContact(822828828L);
         u.setAdresse("Harhoura");
         u.setRole("client");
-        u.setStatut("disponible");
 
         assertDoesNotThrow(() -> {
             utilisateurDao.saveUtilisateur(u);
