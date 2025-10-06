@@ -9,7 +9,6 @@ import entities.Utilisateur;
 
 public class SampleTest {
 	
-    private static Connection connection;
 
     private static UtilisateurDaoImpl utilisateurDao;
 
@@ -17,14 +16,6 @@ public class SampleTest {
     public static void init() throws Exception {
     	utilisateurDao = new UtilisateurDaoImpl();
         System.out.println("✅ DAO initialisé avec SingletonConnection !");
-    }
-
-    @AfterAll
-    public static void close() throws Exception {
-        if (connection != null && !connection.isClosed()) {
-            connection.close();
-            System.out.println("🔒 Connexion fermée.");
-        }
     }
 
     @Test
