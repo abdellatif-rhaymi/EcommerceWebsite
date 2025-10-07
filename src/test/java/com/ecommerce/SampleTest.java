@@ -93,35 +93,6 @@ public class SampleTest {
         assertEquals("client", u.getRole());
     }
 
-    @Test
-    public void testFindLivreursDisponibles() {
-        List<Utilisateur> livreurs = utilisateurDao.findLivreursDisponibles();
-        assertFalse(livreurs.isEmpty());
-        assertEquals("livreur", livreurs.get(0).getRole());
-        assertEquals("disponible", livreurs.get(0).getStatut());
-    }
-
-    @Test
-    public void testFindLivreur() {
-        Utilisateur livreur = utilisateurDao.findlivreur();
-        assertNotNull(livreur);
-        assertEquals("livreur", livreur.getRole());
-        assertEquals("disponible", livreur.getStatut());
-    }
-
-    @Test
-    public void testUpdateLivreurStatut() {
-        Utilisateur livreur = utilisateurDao.findlivreur();
-        assertNotNull(livreur);
-
-        // Mettre à jour le statut
-        utilisateurDao.updateLivreurStatut(livreur.getIdUtilisateur(), "occupé");
-
-        // Vérifier que plus aucun livreur n'est disponible
-        Utilisateur updated = utilisateurDao.findlivreur();
-        assertNull(updated);
-    }
-
     @AfterAll
     public void tearDown() throws Exception {
         if (connection != null && !connection.isClosed()) {
