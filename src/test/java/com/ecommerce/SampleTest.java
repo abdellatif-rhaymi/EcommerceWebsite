@@ -1,9 +1,11 @@
 package com.ecommerce;
 
 import static org.junit.jupiter.api.Assertions.*;
-import java.sql.*;
 import org.junit.jupiter.api.*;
+import java.sql.Connection;
+import java.sql.Statement;
 
+import SingletonConnection.SingletonConnection;
 import UtilisateurDao.UtilisateurDaoImpl;
 import entities.Utilisateur;
 
@@ -13,17 +15,30 @@ public class SampleTest {
     private static UtilisateurDaoImpl utilisateurDao;
 
     @BeforeAll
-    public static void init() throws Exception { 
-        utilisateurDao = new UtilisateurDaoImpl(); 
-        System.out.println("✅ DAO initialisé avec SingletonConnection !"); 
-    } 
+    public static void init() throws Exception {
+        // ✅ Activer le mode test (H2)
+        System.setProperty("TEST_ENV", "true");
 
-    @AfterAll
-    public static void close() throws Exception {
-        if (connection != null && !connection.isClosed()) {
-            connection.close();
-            System.out.println("🔒 Connexion fermée.");
-        }
+        // ✅ Connexion à la base H2
+        connection = SingletonConnection.getConnection();
+
+        // ✅ Créer la table utilisateur dans H2
+        Statement stmt = connection.createStatement();
+        stmt.execute("""
+            CREATE TABLE utilisateur (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nom VARCHAR(100),
+                email VARCHAR(100),
+                mot_de_passe VARCHAR(100),
+                contact BIGINT,
+                adresse VARCHAR(255),
+                role VARCHAR(50)
+            );
+        """);
+        stmt.close();
+
+        utilisateurDao = new UtilisateurDaoImpl();
+        System.out.println("✅ Base H2 initialisée pour les tests !");
     }
 
     @Test
@@ -35,10 +50,17 @@ public class SampleTest {
         u.setContact(822828828L);
         u.setAdresse("Harhoura");
         u.setRole("client");
-        u.setStatut("disponible");
 
         assertDoesNotThrow(() -> {
             utilisateurDao.saveUtilisateur(u);
         }, "L'enregistrement d'un utilisateur ne doit pas lever d'exception.");
+    }
+
+    @AfterAll
+    public static void tearDown() throws Exception {
+        if (connection != null && !connection.isClosed()) {
+            connection.close();
+            System.out.println("🔒 Connexion H2 fermée.");
+        }
     }
 }
