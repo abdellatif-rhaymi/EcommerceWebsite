@@ -35,6 +35,13 @@ pipeline {
                 '''
             }
         }
+        stage('Publish Test Report') {
+            steps {
+                echo "📊 Publication du rapport JUnit..."
+                junit '**/target/surefire-reports/*.xml'
+            }
+        }
+
 
         stage('Deploy to Tomcat') {
             steps {
