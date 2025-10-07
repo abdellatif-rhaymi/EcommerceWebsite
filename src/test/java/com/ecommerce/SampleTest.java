@@ -15,13 +15,14 @@ public class SampleTest {
    @BeforeAll
 	public static void init() throws Exception {
 	    // Charger le driver JDBC
-	    Class.forName("com.mysql.cj.jdbc.Driver");
-	    Connection connection = DriverManager.getConnection(
-	        "jdbc:mysql://mysql:3306/ecommerce", "root", "root");
+	   // Class.forName("com.mysql.cj.jdbc.Driver");
+	    C//onnection connection = DriverManager.getConnection(
+	       // "jdbc:mysql://mysql:3306/ecommerce", "root", "root");
 	
 	    // Injecter la connexion dans le DAO
-	    utilisateurDao = new UtilisateurDaoImpl(connection);
-	
+	    //utilisateurDao = new UtilisateurDaoImpl(connection);
+	utilisateurDao = new UtilisateurDaoImpl();
+      
 	    System.out.println("✅ DAO initialisé avec connexion JDBC !");
 	}
 
