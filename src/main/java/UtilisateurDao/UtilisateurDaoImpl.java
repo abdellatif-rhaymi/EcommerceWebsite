@@ -7,13 +7,13 @@ import java.util.List;
 import SingletonConnection.SingletonConnection;
 import entities.Utilisateur;
 public class UtilisateurDaoImpl implements IUtilisateurDao {
-    //private Connection connection = SingletonConnection.getConnection();
-    private Connection connection;
+    private Connection connection = SingletonConnection.getConnection();
+    //private Connection connection;
 
     // Constructeur pour injecter la connection
-    public UtilisateurDaoImpl(Connection connection) {
-        this.connection = connection;
-    }
+    //public UtilisateurDaoImpl(Connection connection) {
+     //   this.connection = connection;
+    //}
 
 
     @Override
