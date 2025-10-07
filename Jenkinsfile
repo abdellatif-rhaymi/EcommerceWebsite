@@ -25,7 +25,11 @@ pipeline {
                 sh 'mvn clean package -DskipTests'
             }
         }
-
+        stage('Unit Tests') {
+            steps {
+                sh 'mvn test -Dtest=UtilisateurUnitTest'
+            }
+        }
         stage('Unit Tests (H2)') {
             steps {
                 echo "🧪 Exécution des tests JUnit avec base H2 en mémoire..."
