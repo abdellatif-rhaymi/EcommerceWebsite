@@ -26,15 +26,7 @@ pipeline {
         
 
 
-            stage('Test JUnit DAO') {
-        steps {
-            echo "🧪 Exécution des tests JUnit sur UtilisateurDao..."
-            sh '''
-                mvn test -Dtest=SampleTest
-            '''
-        }
-    }
-
+        
 
         stage('Deploy to Tomcat') {
             steps {
@@ -47,6 +39,15 @@ pipeline {
                 }
             }
         }
+        stage('Test JUnit DAO') {
+        steps {
+            echo "🧪 Exécution des tests JUnit sur UtilisateurDao..."
+            sh '''
+                mvn test -Dtest=SampleTest
+            '''
+        }
+    }
+
         
     }
 
