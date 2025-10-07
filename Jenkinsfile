@@ -7,6 +7,8 @@ pipeline {
         DB_PASS = "root"
         TOMCAT_WEBAPPS = "/var/jenkins_home/tomcat_webapps"
         MAVEN_OPTS = "-Dmaven.repo.local=.m2/repository"  // 👉 Cache Maven local
+        SONAR_TOKEN = credentials('sonar-token') // Token stocké dans Jenkins credentials
+
     }
 
     stages {
@@ -19,15 +21,13 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo "🏗️ Compilation avec cache Maven..."
-                // On utilise un cache Maven pour éviter de re-télécharger les dépendances à chaque build
-                cache(path: '.m2/repository', filter: '**/*') {
-                    sh 'mvn -B clean package -DskipTests'
-                }
+                echo "🏗️ Compilation..."
+                sh 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Tests') {
+
+        stage('Tests and analyse') {
             parallel {
                 stage('Unit Tests') {
                     steps {
@@ -42,8 +42,19 @@ pipeline {
                         sh 'mvn test -DTEST_ENV=true -Dtest=SampleTest'
                     }
                 }
+                stage('SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('SonarQube') { // Nom du serveur configuré dans Jenkins
+                            sh "mvn sonar:sonar \
+                                -Dsonar.projectKey=EcommerceWebsite \
+                                -Dsonar.host.url=http://localhost:9000 \
+                                -Dsonar.login=${SONAR_TOKEN}"
+                        }
+                    }
+                 }
             }
         }
+        
 
         stage('Conditional Deploy') {
             when {
