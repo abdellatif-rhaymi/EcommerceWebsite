@@ -36,6 +36,7 @@ pipeline {
                     sh "rm -f ${TOMCAT_WEBAPPS}/ecommerce.war"
                     // Copie et renomme le WAR
                     sh "cp target/*.war ${TOMCAT_WEBAPPS}/ecommerce.war"
+                    sh 'sleep 25'
                 }
             }
         }
