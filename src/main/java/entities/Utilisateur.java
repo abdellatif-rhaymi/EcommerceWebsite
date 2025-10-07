@@ -92,6 +92,11 @@ public class Utilisateur {
         this.statut = statut;
     }
 
+    // 👉 Méthode métier pour test unitaire
+    public boolean estLivreurDisponible() {
+        return "livreur".equalsIgnoreCase(this.role) && "disponible".equalsIgnoreCase(this.statut);
+    }
+
     // Méthode toString (pour faciliter les débogages)
     @Override
     public String toString() {
