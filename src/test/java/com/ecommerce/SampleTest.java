@@ -51,20 +51,16 @@ public class SampleTest {
         u.setAdresse("Harhoura");
         u.setRole("client");
         
-        utilisateurDao.saveUtilisateur(u);
-
-        // Vérifier que l'utilisateur a été inséré
-        PreparedStatement ps = connection.prepareStatement(
-            "SELECT COUNT(*) FROM utilisateur WHERE email = ?");
-        ps.setString(1, u.getEmail());
-        ResultSet rs = ps.executeQuery();
+        assertDoesNotThrow(() -> {
+            utilisateurDao.saveUtilisateur(u);
+        }, "L'enregistrement d'un utilisateur ne doit pas lever d'exception.");
+        
+        // ✅ Vérification insertion
+        var rs = connection.createStatement().executeQuery("SELECT COUNT(*) FROM utilisateur WHERE email='abdullah@example.com'");
         rs.next();
         int count = rs.getInt(1);
-        rs.close();
-        ps.close();
-
         assertEquals(1, count, "L'utilisateur doit être inséré dans la base H2");
-        
+        rs.close();   
     }
 
     @AfterAll
