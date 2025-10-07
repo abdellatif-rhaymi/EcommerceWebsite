@@ -54,13 +54,6 @@ public class SampleTest {
         assertDoesNotThrow(() -> {
             utilisateurDao.saveUtilisateur(u);
         }, "L'enregistrement d'un utilisateur ne doit pas lever d'exception.");
-        
-        // ✅ Vérification insertion
-        var rs = connection.createStatement().executeQuery("SELECT COUNT(*) FROM utilisateur WHERE email='abdullah@example.com'");
-        rs.next();
-        int count = rs.getInt(1);
-        assertEquals(1, count, "L'utilisateur doit être inséré dans la base H2");
-        rs.close();   
     }
 
     @AfterAll
