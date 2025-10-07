@@ -2,16 +2,17 @@ pipeline {
     agent any
 
     environment {
-        // Variables de connexion MySQL (si tu veux les utiliser dans ton app)
+        // Variables utilisées pendant le déploiement (MySQL réel)
         DB_URL = "jdbc:mysql://mysql:3306/ecommerce"
-        DB_USER = "user"
-        DB_PASS = "password"
+        DB_USER = "root"
+        DB_PASS = "root"
 
         // Dossier partagé avec Tomcat (défini dans docker-compose.yml)
         TOMCAT_WEBAPPS = "/var/jenkins_home/tomcat_webapps"
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/abdellatif-rhaymi/EcommerceWebsite.git'
@@ -20,45 +21,43 @@ pipeline {
 
         stage('Build') {
             steps {
+                echo "🏗️  Compilation du projet sans exécuter les tests..."
                 sh 'mvn clean package -DskipTests'
             }
         }
-        
 
-
-        
+        stage('Unit Tests (H2)') {
+            steps {
+                echo "🧪 Exécution des tests JUnit avec base H2 en mémoire..."
+                sh '''
+                    # On active le mode test (H2) via une variable système
+                    mvn test -DTEST_ENV=true -Dtest=SampleTest
+                '''
+            }
+        }
 
         stage('Deploy to Tomcat') {
             steps {
                 script {
+                    echo "🚀 Déploiement sur Tomcat..."
                     sh "mkdir -p ${TOMCAT_WEBAPPS}"
-                    // Supprime l’ancienne version si elle existe
+                    // Supprimer ancienne version
                     sh "rm -f ${TOMCAT_WEBAPPS}/ecommerce.war"
-                    // Copie et renomme le WAR
+                    // Copier le WAR compilé
                     sh "cp target/*.war ${TOMCAT_WEBAPPS}/ecommerce.war"
                     sh 'sleep 25'
                 }
             }
         }
-        stage('Test JUnit DAO') {
-        steps {
-            echo "🧪 Exécution des tests JUnit sur UtilisateurDao..."
-            sh '''
-                mvn test -Dtest=SampleTest
-            '''
-        }
-    }
-
-        
     }
 
     post {
         success {
             echo "✅ Déploiement terminé avec succès !"
-            echo "🌍 Accéder à l’application : http://localhost:8085/ecommerce/"
+            echo "🌍 Accède à l’application : http://localhost:8085/ecommerce/"
         }
         failure {
-            echo "❌ Pipeline échoué ! Vérifie les logs."
+            echo "❌ Pipeline échoué ! Consulte les logs Jenkins pour plus de détails."
         }
     }
 }
