@@ -21,10 +21,8 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo "🏗️ Compilation avec cache Maven..."
-                cache(maxCacheSize: 2, caches: [[$class: 'MavenCache']]) {
-                    sh 'mvn clean package -DskipTests'
-                }
+                echo "🏗️  Compilation du projet sans exécuter les tests..."
+                sh 'mvn clean package -DskipTests'
             }
         }
 
