@@ -40,6 +40,37 @@ pipeline {
                 '''
             }
         }
+        
+        stage('Coverage Report') {
+            steps {
+                echo "📈 Génération du rapport de couverture JaCoCo..."
+                sh 'mvn clean test jacoco:report'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            environment {
+                scannerHome = tool 'sonar-scanner'
+            }
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh """
+                        ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=ecommerce \
+                        -Dsonar.projectName="Ecommerce Website" \
+                        -Dsonar.projectVersion=1.0 \
+                        -Dsonar.sources=src/main/java \
+                        -Dsonar.tests=src/test/java \
+                        -Dsonar.java.binaries=target/classes \
+                        -Dsonar.junit.reportPaths=target/surefire-reports \
+                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+                        -Dsonar.host.url=http://sonarqube:9000
+                    """
+                }
+            }
+        }
+
+        
         stage('Publish Test Report') {
             steps {
                 echo "📊 Publication du rapport JUnit..."
