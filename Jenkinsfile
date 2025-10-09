@@ -32,7 +32,7 @@ pipeline {
                     }
                 }
 
-                stage('Unit Tests (H2)') {
+                stage('Integration Tests (H2)') {
                     steps {
                         sh 'mvn test -DTEST_ENV=true -Dtest=SampleTest'
                     }
