@@ -81,9 +81,11 @@ pipeline {
                    script { sh "mkdir -p ${TOMCAT_WEBAPPS}" 
                            sh "rm -f ${TOMCAT_WEBAPPS}/ecommerce.war" 
                            sh "cp target/*.war ${TOMCAT_WEBAPPS}/ecommerce.war" 
-                           sh 'sleep 25' }
+                           sh 'sleep 25' 
+                }
             }
         }
+    }
 
     post {
         success {
