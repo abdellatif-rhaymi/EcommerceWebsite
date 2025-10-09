@@ -18,25 +18,24 @@ pipeline {
             }
         }
 
-        stage('Parallel Build & Tests') {
-            parallel {
-                stage('Build (cached)') {
-                    steps {
-                        sh 'mvn clean package -DskipTests'
-                    }
-                }
+        stage('Build') {
+            steps {
+                echo "🏗️ Compilation du projet..."
+                sh 'mvn clean package -DskipTests'
+            }
+        }
 
-                stage('Unit Tests') {
-                    steps {
-                        sh 'mvn test -Dtest=UtilisateurUnitTest'
-                    }
-                }
+        stage('Unit Tests') {
+            steps {
+                echo "🧪 Exécution des tests unitaires..."
+                sh 'mvn test -Dtest=UtilisateurUnitTest'
+            }
+        }
 
-                stage('Unit Tests (H2)') {
-                    steps {
-                        sh 'mvn test -DTEST_ENV=true -Dtest=SampleTest'
-                    }
-                }
+        stage('Unit Tests (H2)') {
+            steps {
+                echo "🧪 Exécution des tests unitaires avec la base H2..."
+                sh 'mvn test -DTEST_ENV=true -Dtest=SampleTest'
             }
         }
 
@@ -52,6 +51,7 @@ pipeline {
                 scannerHome = tool 'sonar-scanner'
             }
             steps {
+                echo "🔍 Analyse du code avec SonarQube..."
                 withSonarQubeEnv('SonarQube') {
                     sh """
                         ${scannerHome}/bin/sonar-scanner \
@@ -71,20 +71,20 @@ pipeline {
 
         stage('Publish Test Report') {
             steps {
+                echo "📊 Publication du rapport de tests..."
                 junit '**/target/surefire-reports/*.xml'
             }
         }
 
-        stage('Incremental Deploy to Tomcat') {
-            when {
-                changeset "**/*.java"
-            }
+        stage('Deploy to Tomcat') {
             steps {
-                echo "🚀 Déploiement incrémental sur Tomcat..."
-                sh "mkdir -p ${TOMCAT_WEBAPPS}"
-                sh "rm -f ${TOMCAT_WEBAPPS}/ecommerce.war"
-                sh "cp target/*.war ${TOMCAT_WEBAPPS}/ecommerce.war"
-                sh 'sleep 25'
+                echo "🚀 Déploiement complet sur Tomcat..."
+                script {
+                    sh "mkdir -p ${TOMCAT_WEBAPPS}"
+                    sh "rm -f ${TOMCAT_WEBAPPS}/ecommerce.war"
+                    sh "cp target/*.war ${TOMCAT_WEBAPPS}/ecommerce.war"
+                    sh 'sleep 25'
+                }
             }
         }
     }
