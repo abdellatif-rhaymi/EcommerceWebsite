@@ -75,16 +75,17 @@ pipeline {
             }
         }
 
-        stage('Incremental Deploy to Tomcat') {
-            when {
-                changeset "**/*.java"
-            }
+        stage('Deploy to Tomcat') {
             steps {
-                echo "🚀 Déploiement incrémental sur Tomcat..."
-                sh "mkdir -p ${TOMCAT_WEBAPPS}"
-                sh "rm -f ${TOMCAT_WEBAPPS}/ecommerce.war"
-                sh "cp target/*.war ${TOMCAT_WEBAPPS}/ecommerce.war"
-                sh 'sleep 25'
+                script {
+                    echo "🚀 Déploiement sur Tomcat..."
+                    sh "mkdir -p ${TOMCAT_WEBAPPS}"
+                    // Supprimer ancienne version
+                    sh "rm -f ${TOMCAT_WEBAPPS}/ecommerce.war"
+                    // Copier le WAR compilé
+                    sh "cp target/*.war ${TOMCAT_WEBAPPS}/ecommerce.war"
+                    sh 'sleep 25'
+                }
             }
         }
     }
@@ -92,9 +93,10 @@ pipeline {
     post {
         success {
             echo "✅ Déploiement terminé avec succès !"
+            echo "🌍 Accède à l’application : http://localhost:8085/ecommerce/"
         }
         failure {
-            echo "❌ Pipeline échoué ! Consulte les logs Jenkins pour les erreurs."
+            echo "❌ Pipeline échoué ! Consulte les logs Jenkins pour plus de détails."
         }
     }
 }
