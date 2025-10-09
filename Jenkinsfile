@@ -77,11 +77,12 @@ pipeline {
         }
 
         stage('Deploy to Tomcat') {
-            steps { echo "🚀 Déploiement incrémental sur Tomcat (seulement si du code a changé)..." 
-                   script { sh "mkdir -p ${TOMCAT_WEBAPPS}" 
-                           sh "rm -f ${TOMCAT_WEBAPPS}/ecommerce.war" 
-                           sh "cp target/*.war ${TOMCAT_WEBAPPS}/ecommerce.war" 
-                           sh 'sleep 25' 
+            steps {
+                echo "🚀 Déploiement incrémental sur Tomcat..."
+                script {
+                    sh "mkdir -p ${TOMCAT_WEBAPPS}"
+                    sh "cp target/*.war ${TOMCAT_WEBAPPS}/ecommerce.war"
+                    sh 'sleep 25'
                 }
             }
         }
