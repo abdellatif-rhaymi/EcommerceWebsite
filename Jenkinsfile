@@ -1,4 +1,4 @@
-rendre ma pipeline nonéoptimise pipeline {
+pipeline {
     agent any
 
     environment {
