@@ -50,6 +50,18 @@ pipeline {
                 }
             }
         }
+        stage('Deploy from Docker Hub') {
+        steps {
+            echo "🚀 Déploiement depuis Docker Hub..."
+            sh '''
+                docker pull abdellatifrhaymi/ecommerce-app:latest
+                docker stop tomcat-server || true
+                docker rm tomcat-server || true
+                docker run -d --name tomcat-server -p 8085:8079 abdellatifrhaymi/ecommerce-app:latest
+            '''
+        }
+    }
+
     }
 
     post {
