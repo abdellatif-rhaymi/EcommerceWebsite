@@ -17,11 +17,27 @@ RUN mvn -B clean package -DskipTests
 ############################################
 # Étape 2 — Exécution (Tomcat)
 ############################################
-FROM tomcat:10.1-jdk17-corretto
+FROM tomcat:10.1.68-jdk17-openjdk-slim
+LABEL maintainer="Abdellatif Rhaymi <abdellatif.rhaymi@gmail.com>"
 
-COPY --from=builder /build/target/*.war /usr/local/tomcat/webapps/ecommerce.war
+USER root
 
-EXPOSE 8079
+# Installer utilitaires pour créer des utilisateurs et exécuter curl pour le healthcheck
+RUN apt-get update && apt-get install -y \
+    sudo \
+    passwd \
+    shadow \
+    curl \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# Créer un utilisateur non-root pour exécuter Tomcat
+RUN groupadd -r app && useradd -r -g app app \
+    && mkdir -p /usr/local/tomcat/webapps /opt/logs \
+    && chown -R app:app /usr/local/tomcat /opt/logs
+
+# Passer à l'utilisateur non-root
+USER app
 
 
 # Healthcheck pour vérifier que l’application est démarrée
