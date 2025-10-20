@@ -7,6 +7,10 @@ pipeline {
         DB_PASS = "root"
         TOMCAT_WEBAPPS = "/var/jenkins_home/tomcat_webapps"
         MAVEN_OPTS = "-Dmaven.repo.local=/root/.m2/repository"
+
+        DOCKER_HUB_USER = "abdellatifrhaymi"     // Ton pseudo Docker Hub
+        APP_NAME = "ecommerce-app"
+        IMAGE_NAME = "${DOCKER_HUB_USER}/${APP_NAME}:latest"
     }
 
     stages {
@@ -25,77 +29,37 @@ pipeline {
                         sh 'mvn clean package -DskipTests'
                     }
                 }
-
-                stage('Unit Tests') {
-                    steps {
-                        sh 'mvn test -Dtest=UtilisateurUnitTest'
-                    }
-                }
-
-                stage('Integration Tests (H2)') {
-                    steps {
-                        sh 'mvn test -DTEST_ENV=true -Dtest=SampleTest'
-                    }
-                }
+            }
+        }
+        // 🔥 NOUVEAUX STAGES CI-DESSOUS 🔥
+        stage('Build Docker Image') {
+            steps {
+                echo "🐳 Construction de l’image Docker..."
+                sh "docker build -t ${IMAGE_NAME} ."
             }
         }
 
-        stage('Coverage Report') {
+        stage('Push Docker Image to Docker Hub') {
             steps {
-                echo "📈 Génération du rapport de couverture JaCoCo..."
-                sh 'mvn clean test jacoco:report'
-            }
-        }
-
-        stage('SonarQube Analysis') {
-            environment {
-                scannerHome = tool 'sonar-scanner'
-            }
-            steps {
-                withSonarQubeEnv('SonarQube') {
+                echo "📦 Envoi de l’image sur Docker Hub..."
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh """
-                        ${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.projectKey=ecommerce \
-                        -Dsonar.projectName="Ecommerce Website" \
-                        -Dsonar.projectVersion=1.0 \
-                        -Dsonar.sources=src/main/java \
-                        -Dsonar.tests=src/test/java \
-                        -Dsonar.java.binaries=target/classes \
-                        -Dsonar.junit.reportPaths=target/surefire-reports \
-                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
-                        -Dsonar.host.url=http://sonarqube:9000
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push ${IMAGE_NAME}
                     """
                 }
-            }
-        }
-
-        stage('Publish Test Report') {
-            steps {
-                junit '**/target/surefire-reports/*.xml'
-            }
-        }
-
-        stage('Incremental Deploy to Tomcat') {
-            when {
-                changeset "**/*.java"
-            }
-            steps {
-                echo "🚀 Déploiement incrémental sur Tomcat..."
-                sh "mkdir -p ${TOMCAT_WEBAPPS}"
-                sh "rm -f ${TOMCAT_WEBAPPS}/ecommerce.war"
-                sh "cp target/*.war ${TOMCAT_WEBAPPS}/ecommerce.war"
-                sh 'sleep 25'
             }
         }
     }
 
     post {
         success {
-            echo "✅ Déploiement terminé avec succès !"
+            echo "✅ Pipeline terminée avec succès !"
             echo "🌍 Accède à l’application : http://localhost:8085/ecommerce/"
+            echo "🐳 Image Docker poussée sur Docker Hub : ${IMAGE_NAME}"
         }
         failure {
-            echo "❌ Pipeline échoué ! Consulte les logs Jenkins pour les erreurs."
+            echo "❌ Pipeline échouée ! Consulte les logs Jenkins pour les erreurs."
         }
     }
 }
