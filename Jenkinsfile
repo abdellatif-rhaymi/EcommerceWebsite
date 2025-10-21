@@ -2,76 +2,50 @@ pipeline {
     agent any
 
     environment {
+        // Variables de connexion MySQL (si tu veux les utiliser dans ton app)
         DB_URL = "jdbc:mysql://mysql:3306/ecommerce"
-        DB_USER = "root"
-        DB_PASS = "root"
-        TOMCAT_WEBAPPS = "/var/jenkins_home/tomcat_webapps"
-        MAVEN_OPTS = "-Dmaven.repo.local=/root/.m2/repository"
+        DB_USER = "user"
+        DB_PASS = "password"
 
-        DOCKER_HUB_USER = "abdellatifrhaymi"     // Ton pseudo Docker Hub
-        APP_NAME = "ecommerce-app"
-        IMAGE_NAME = "${DOCKER_HUB_USER}/${APP_NAME}:latest"
+        // Dossier partagé avec Tomcat (défini dans docker-compose.yml)
+        TOMCAT_WEBAPPS = "/var/jenkins_home/tomcat_webapps"
     }
 
     stages {
-
         stage('Checkout') {
             steps {
-                echo "📦 Récupération du code source..."
                 git branch: 'main', url: 'https://github.com/abdellatif-rhaymi/EcommerceWebsite.git'
             }
         }
 
-        stage('Parallel Build & Tests') {
-            parallel {
-                stage('Build (cached)') {
-                    steps {
-                        sh 'mvn clean package -DskipTests'
-                    }
+        stage('Build') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+    
+
+        stage('Deploy to Tomcat') {
+            steps {
+                script {
+                    sh "mkdir -p ${TOMCAT_WEBAPPS}"
+                    // Supprime l’ancienne version si elle existe
+                    sh "rm -f ${TOMCAT_WEBAPPS}/ecommerce.war"
+                    // Copie et renomme le WAR
+                    sh "cp target/*.war ${TOMCAT_WEBAPPS}/ecommerce.war"
                 }
             }
         }
-        // 🔥 NOUVEAUX STAGES CI-DESSOUS 🔥
-        stage('Build Docker Image') {
-            steps {
-                echo "🐳 Construction de l’image Docker..."
-                sh "docker build -t ${IMAGE_NAME} ."
-            }
-        }
-
-        stage('Push Docker Image to Docker Hub') {
-            steps {
-                echo "📦 Envoi de l’image sur Docker Hub..."
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh """
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push ${IMAGE_NAME}
-                    """
-                }
-            }
-        }
-        stage('Deploy from Docker Hub') {
-        steps {
-            echo "🚀 Déploiement depuis Docker Hub..."
-            sh '''
-                docker pull abdellatifrhaymi/ecommerce-app:latest
-                docker stop tomcat-server || true
-                docker rm tomcat-server || true
-                docker run -d --name tomcat-server -p 8085:8079 abdellatifrhaymi/ecommerce-app:latest
-            '''
-        }
-    }
-
+        
     }
 
     post {
         success {
-            echo "✅ Pipeline terminée avec succès !"
-            echo "🌍 Accède à l’application : http://localhost:8085/ecommerce/"
-            echo "🐳 Image Docker poussée sur Docker Hub : ${IMAGE_NAME}"
+            echo "✅ Déploiement terminé avec succès !"
+            echo "🌍 Accéder à l’application : http://localhost:8085/ecommerce/"
         }
         failure {
-            echo "❌ Pipeline échouée ! Consulte les logs Jenkins pour les erreurs."
+            echo "❌ Pipeline échoué ! Vérifie les logs."
         }
     }
 }
