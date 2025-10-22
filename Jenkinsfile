@@ -39,7 +39,7 @@ pipeline {
         stage('Coverage Report') {
             steps {
                 echo "📈 Génération du rapport de couverture JaCoCo..."
-                sh 'mvn clean test jacoco:report'
+                 sh 'mvn jacoco:report'
             }
         }
 
